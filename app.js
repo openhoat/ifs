@@ -2,7 +2,11 @@
 
 var config = require('./config.js')
   , wbp = require('wbpjs')
-  , crypto = require('crypto');
+  , crypto = require('crypto')
+  , fs = require('fs')
+  , path = require('path');
+
+var verbose = config.options && config.options.verbose;
 
 wbp.configure(config);
 wbp.create();

@@ -2,11 +2,12 @@ var config = require('../../config.js')
   , fs = require('fs')
   , path = require('path')
   , wbp = require('wbpjs')
+  , cron = require('cron')
   , Acl = require('acl')
   , pathSep = path.sep || path.join('x', 'x')[1]
   , downloadPath = config.publicDir + pathSep + 'download' + pathSep;
 
-//var verbose = config.options && config.options.verbose;
+var verbose = config.options && config.options.verbose;
 
 var acl = new Acl(new Acl.memoryBackend());
 
@@ -19,6 +20,40 @@ acl.addUserRoles('admin', 'admin', function(err){
 
 function endsWith(str, suffix) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+function purgeLocalFile(fileId, callback){
+  verbose && console.log('purging file id :', fileId);
+  var localFileParentPath = downloadPath + fileId
+    , purgeParents = function(){
+      fs.rmdir(localFileParentPath, function(err){
+        if(err) { if(callback) { callback(err); return; } else { throw err; } }
+        verbose && console.log('deleting dir :', localFileParentPath);
+        fs.unlink(localFileParentPath + '.json', function(err){
+          if(err) { if(callback) { callback(err); return; } else { throw err; } }
+          verbose && console.log('deleting : ', localFileParentPath + '.json');
+          if(callback) { callback(); }
+        });
+      });
+    }
+    , done = 0;
+  fs.readdir(localFileParentPath, function(err, fileNames){
+    if(fileNames.length > 0) {
+      for(var i = 0; i < fileNames.length; i++){
+        console.log('i=', i);
+        var fileName = fileNames[i];
+        fs.unlink(localFileParentPath + pathSep + fileName, function(err){
+          if(err) { if(callback) { callback(err); return; } else { throw err; } }
+          verbose && console.log('deleting :', localFileParentPath + pathSep + fileName);
+          if (++done >= fileNames.length) {
+            purgeParents();
+          }
+        });
+      }
+    } else {
+      purgeParents();
+    }
+  });
 }
 
 var controller = {
@@ -45,34 +80,57 @@ var controller = {
           return;
         }
       var files = [];
-      fs.readdirSync(downloadPath).forEach(function(fileName){
-        if (endsWith(fileName, '.json')) {
-          var infoFile = downloadPath + pathSep + fileName
-            , file = JSON.parse(fs.readFileSync(infoFile, 'utf-8'));
-          files.push(file);
+      var render = function(){
+        wbp.render(res, function (type) {
+          var view = wbp.getWebView(req, 'file/list', type);
+          res.render(view, {
+            files:files
+          });
+        });
+      };
+      fs.readdir(downloadPath, function(err, fileNames){
+        if(err) { next(err); return; }
+        var done = 0;
+        if(fileNames.length > 0) {
+          for(var i = 0; i < fileNames.length; i++) {
+            var fileName = fileNames[i];
+            if (endsWith(fileName, '.json')) {
+              var infoFile = downloadPath + pathSep + fileName;
+              fs.readFile(infoFile, 'utf-8', function(err, data){
+                if(err) { next(err); return; }
+                var file = JSON.parse(data);
+                files.push(file);
+                if (++done >= fileNames.length){
+                  render();
+                }
+              });
+            }
+          }
+        } else {
+          render();
         }
       });
-      wbp.render(res, function (type) {
-        var view = wbp.getWebView(req, 'file/list', type);
-        res.render(view, {
-          files:files
+    });
+  },
+  'show':function (req, res, next) {
+    var fileId = req.params['file_id']
+      , localFileParentPath = downloadPath + fileId;
+    fs.readdir(localFileParentPath, function(err, fileNames){
+      if(err) { next({message: 'not found'}); return; }
+      var fileName = fileNames[0];
+      fs.readFile(localFileParentPath + '.json', function(err, data){
+        if(err) { next(err); return; }
+        var file = JSON.parse(data);
+        wbp.render(res, function (type) {
+          var view = wbp.getWebView(req, 'file/show', type);
+          res.render(view, {
+            file:file
+          });
         });
       });
     });
   },
-  'show':function (req, res) {
-    var fileId = req.params['file_id']
-      , localFileParentPath = downloadPath + fileId
-      , fileName = fs.readdirSync(localFileParentPath)[0]
-      , file = JSON.parse(fs.readFileSync(localFileParentPath + '.json'));
-    wbp.render(res, function (type) {
-      var view = wbp.getWebView(req, 'file/show', type);
-      res.render(view, {
-        file:file
-      });
-    });
-  },
-  'post':function (req, res) {
+  'post':function (req, res, next) {
     var reqFile=req.files.file
       , file = {
           id: path.basename(reqFile.path)
@@ -97,34 +155,42 @@ var controller = {
       });
       return;
     }
-    fs.mkdirSync(localFileParentPath);
-    fs.readFile(req.files.file.path, function (err, data) {
-      fs.writeFile(localFilePath, data, 'utf-8', function (err) {
-        var fileInfo = JSON.stringify(file);
-        fs.writeFile(localFileInfoPath, fileInfo, function (err) {
-          res.message('Your file has been successfully uploaded, to download it later, copy the link to your clipboard');
-          res.redirect('/file/' + file.id);
+    var purgeDate = new Date(file.lastModifiedDate);
+    purgeDate.setHours(purgeDate.getHours() + config.localFileAge);
+    var cronJob = new cron.CronJob(purgeDate, function(){
+      purgeLocalFile(file.id);
+    });
+    cronJob.start();
+    console.log(new Date(file.lastModifiedDate));
+    fs.mkdir(localFileParentPath, function(err){
+      if(err) { next(err); return; }
+      fs.readFile(req.files.file.path, function (err, data) {
+        if(err) { next(err); return; }
+        fs.writeFile(localFilePath, data, 'utf-8', function (err) {
+          if(err) { next(err); return; }
+          var fileInfo = JSON.stringify(file);
+          fs.writeFile(localFileInfoPath, fileInfo, function (err) {
+            if(err) { next(err); return; }
+            res.message('Your file will be stored until ' + purgeDate + ', to download it later, copy the link to your clipboard');
+            res.redirect('/file/' + file.id);
+          });
         });
       });
     });
   },
-  'remove':function (req, res) {
-    var fileId = req.params['file_id']
-      , localFileParentPath = downloadPath + fileId;
-    fs.readdirSync(localFileParentPath).forEach(function(fileName){
-      var localFilePath = localFileParentPath + pathSep + fileName;
-      fs.unlinkSync(localFilePath);
-    });
-    fs.rmdirSync(localFileParentPath);
-    fs.unlinkSync(localFileParentPath + '.json');
-    wbp.render(res, function (type) {
-      if (type === 'html') {
-        res.message('File ' + fileId + ' has been successfully removed!');
-        res.redirect('/');
-      } else {
-        res.status(204);
-        res.send();
-      }
+  'remove':function (req, res, next) {
+    var fileId = req.params['file_id'];
+    purgeLocalFile(fileId, function(err){
+      if(err) { next(err); return; }
+      wbp.render(res, function (type) {
+        if (type === 'html') {
+          res.message('File ' + fileId + ' has been successfully removed!');
+          res.redirect('/');
+        } else {
+          res.status(204);
+          res.send();
+        }
+      });
     });
   },
   'clear':function (req, res, next) {
@@ -145,27 +211,52 @@ var controller = {
         });
         return;
       }
-      fs.readdirSync(downloadPath).forEach(function(fileId){
-        var localFileParentPath = downloadPath + fileId
-          , stats = fs.lstatSync(localFileParentPath);
-        if (!stats.isDirectory()) {
-          fs.unlinkSync(localFileParentPath);
-          return;
+      fs.readdir(downloadPath, function(err, fileIds){
+        if(err) { next(err); return; }
+        for(var i = 0; i < fileIds.length; i++){
+          var fileId = fileIds[i];
+          var localFileParentPath = downloadPath + fileId;
+          var removeDir = function(){
+            fs.rmdir(localFileParentPath, function(err){
+              if(err) { next(err); return; }
+            });
+          };
+          fs.stat(localFileParentPath, function(err, stats){
+            if (stats.isDirectory()) {
+              fs.readdir(localFileParentPath, function(err, fileNames){
+                if(err) { next(err); return; }
+                var done = 0;
+                if(fileNames.length > 0) {
+                  for(var i = 0; i < fileNames.length; i++){
+                    var fileName = fileNames[i];
+                    var localFilePath = localFileParentPath + pathSep + fileName;
+                    fs.unlink(localFilePath, function(err){
+                      if(err) { next(err); return; }
+                      if(++done >= fileNames.length){
+                        removeDir();
+                      }
+                    });
+                  }
+                } else {
+                  removeDir();
+                }
+              });
+            } else {
+              fs.unlink(localFileParentPath, function(err){
+                if(err) { next(err); return; }
+              });
+            }
+          });
         }
-        fs.readdirSync(localFileParentPath).forEach(function(fileName){
-          var localFilePath = localFileParentPath + pathSep + fileName;
-          fs.unlinkSync(localFilePath);
+        wbp.render(res, function (type) {
+          if (type === 'html') {
+            res.message('All uploaded files have been removed!');
+            res.redirect('/');
+          } else {
+            res.status(204);
+            res.send();
+          }
         });
-        fs.rmdirSync(localFileParentPath);
-      });
-      wbp.render(res, function (type) {
-        if (type === 'html') {
-          res.message('All uploaded files have been removed!');
-          res.redirect('/');
-        } else {
-          res.status(204);
-          res.send();
-        }
       });
     });
   }

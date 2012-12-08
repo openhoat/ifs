@@ -9,7 +9,8 @@
   },
   "dependencies":{
     "wbpjs":"~0.4.2",
-    "acl":"~0.2.2"
+    "acl":"~0.2.2",
+    "cron":"~1.0.1"
   },
   "devDependencies":{
     "grunt-contrib-clean":"~0.3.1",
