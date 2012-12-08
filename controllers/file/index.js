@@ -40,7 +40,6 @@ function purgeLocalFile(fileId, callback){
   fs.readdir(localFileParentPath, function(err, fileNames){
     if(fileNames.length > 0) {
       for(var i = 0; i < fileNames.length; i++){
-        console.log('i=', i);
         var fileName = fileNames[i];
         fs.unlink(localFileParentPath + pathSep + fileName, function(err){
           if(err) { if(callback) { callback(err); return; } else { throw err; } }
@@ -161,7 +160,6 @@ var controller = {
       purgeLocalFile(file.id);
     });
     cronJob.start();
-    console.log(new Date(file.lastModifiedDate));
     fs.mkdir(localFileParentPath, function(err){
       if(err) { next(err); return; }
       fs.readFile(req.files.file.path, function (err, data) {
