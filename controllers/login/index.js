@@ -12,7 +12,7 @@ var controller = {
   'post':function (req, res) {
     var login = req.body['login']
       , pwd = req.body['pwd'];
-    if(login === 'admin' && crypto.hash(pwd) === 'HaVO1xr1nSa2dXcnuQ+QQ0XHpB0='){
+    if(login === 'admin' && crypto.hash(pwd) === config.adminPasswordHash){
       req.session.userId = 'admin';
       res.message('Welcome ' + req.session.userId + '!');
       res.redirect('/');

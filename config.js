@@ -14,7 +14,8 @@ var config = {
   renderFormats  :['html', 'json'],
   options        :{
     verbose:false
-  }
+  },
+  adminPasswordHash: 'HaVO1xr1nSa2dXcnuQ+QQ0XHpB0=' // Feel free to change to your password hash
 };
 
 module.exports = config;
