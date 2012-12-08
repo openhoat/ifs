@@ -1,0 +1,50 @@
+<% include ../include/header.html %>
+<form action="/file" method="post" enctype="multipart/form-data">
+  <p>
+    <input type="file" id="file" name="file">
+  </p>
+  <p>
+    <input type="reset" value="Reset" id="fileUploadCancelButton">
+    <input type="submit" id="fileUploadButton">
+  </p>
+</form>
+<div id="drop-area">
+  <p class="drop-instructions">or drag and drop a file here</p>
+</div>
+<script>
+  window.onload = function(){
+    var fileUploadButton = document.getElementById('fileUploadButton');
+    fileUploadButton.setAttribute('disabled', 'disabled');
+    var file = document.getElementById('file');
+    var fileUploadCancelButton = document.getElementById('fileUploadCancelButton');
+    fileUploadCancelButton.onclick = function(){
+      file['files'] = [];
+      return true;
+    }
+    file.onchange = function(){
+      if(file['files']) {
+        fileUploadButton.removeAttribute('disabled');
+      } else {
+        fileUploadButton.setAttribute('disabled', 'disabled');
+      }
+      return true;
+    }
+    if(dragAndDropSupported()){
+      var dropArea = document.getElementById('drop-area');
+      addCssClass(dropArea, 'enabled');
+      dropArea.ondrop = function (event) {
+        event.preventDefault && event.preventDefault();
+        var files = event.dataTransfer.files;
+        file['files'] = files;
+        return true;
+      };
+      dropArea.ondragover = function(event) {
+        addCssClass(dropArea, 'over');
+      };
+      dropArea.ondragleave = function (event) {
+        removeCssClass(dropArea, 'over');
+      };
+    }
+  }
+</script>
+<% include ../include/footer.html %>

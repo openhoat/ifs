@@ -1,0 +1,13 @@
+---
+applications:
+  .:
+    name: ifs
+    framework:
+      name: node
+      info:
+        mem: 64M
+        description: Instant File Sharing
+        exec: 
+    url: ifs.eu01.aws.af.cm
+    mem: 128M
+    instances: 1

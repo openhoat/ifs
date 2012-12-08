@@ -1,0 +1,53 @@
+<% include ../include/header.html %>
+<h2>Stored file</h2>
+<p>Save theses links to download or purge the file later :</p>
+<fieldset id="fileLinks">
+  <p>
+    <label for="downloadLinkValue">Download link :</label>
+    <input type="text" id="downloadLinkValue" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+  <p>
+    <label for="thisPageLinkValue">Page link to purge :</label>
+    <input type="text" id="thisPageLinkValue" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+</fieldset>
+<div class="clear"></div>
+<h2>File info</h2>
+<fieldset id="fileInfo">
+  <p>
+    <label for="id">Id :</label>
+    <input type="text" id="id" name="id" value="<%= file.id %>" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+  <p>
+    <label for="name">Name :</label>
+    <input type="text" id="name" name="name" value="<%= file.name %>" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+  <p>
+    <label for="type">Type :</label>
+    <input type="text" id="type" name="type" value="<%= file.type %>" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+  <p>
+    <label for="size">Size (bytes) :</label>
+    <input type="text" id="size" name="size" value="<%= file.size %>" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+  <p>
+    <label for="lastModifiedDate">Date :</label>
+    <input type="text" id="lastModifiedDate" name="lastModifiedDate" value="<%= file.lastModifiedDate %>" readonly="readonly" onfocus="this.select();" onmouseup="return false">
+  </p>
+</fieldset>
+<div class="clear"></div>
+<form id="purgeForm" name="purgeForm" action="/file/<%= file.id %>" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="_method" value="delete">
+</form>
+<ul class="links">
+  <li><a id="downloadLink" class="link" href="/download/<%= file.id %>/<%= file.name %>">Download</a></li>
+  <li><a id="purgeLink" class="link" href="#" onclick="document.purgeForm.submit()">Purge</a></li>
+</ul>
+<script>
+  var baseUrl = window.location.protocol+"//"+window.location.host;
+  var downloadLinkValue = document.getElementById('downloadLinkValue');
+  downloadLinkValue.value = baseUrl + '/download/<%= file.id %>/<%= file.name %>';
+  var thisPageLinkValue = document.getElementById('thisPageLinkValue');
+  thisPageLinkValue.value = document.URL;
+</script>
+<% include ../include/footer.html %>

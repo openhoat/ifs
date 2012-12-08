@@ -1,0 +1,12 @@
+<% include ../include/header.html %>
+<h2>Stored files</h2>
+<% if (files.length) { %>
+<ul>
+  <% files.forEach(function(file){ %>
+  <li><a href="/file/<%= file.id %>"><%= file.name %></a></li>
+  <% }) %>
+</ul>
+<% } else { %>
+No file
+<% } %>
+<% include ../include/footer.html %>
