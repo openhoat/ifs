@@ -7,7 +7,7 @@ A simple web app for instant file sharing.
 - upload a file
 - download a file
 - remove a file
-- purge all the stored files
+- list / purge all the stored files when logged as admin
 
 ## Installation
 
