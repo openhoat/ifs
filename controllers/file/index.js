@@ -103,6 +103,8 @@ var controller = {
                   render();
                 }
               });
+            } else if (i === (fileNames.length - 1) && done === 0){
+              render();
             }
           }
         } else {
