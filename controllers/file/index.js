@@ -146,8 +146,9 @@ var controller = {
         return;
       }
       fs.readdirSync(downloadPath).forEach(function(fileId){
-        var localFileParentPath = downloadPath + fileId;
-        if (endsWith(fileId, '.json')) {
+        var localFileParentPath = downloadPath + fileId
+          , stats = fs.lstatSync(localFileParentPath);
+        if (!stats.isDirectory()) {
           fs.unlinkSync(localFileParentPath);
           return;
         }
