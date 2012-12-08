@@ -7,7 +7,7 @@ A simple web app for instant file sharing.
 - upload a file
 - download a file
 - remove a file
-- list / purge all the stored files when logged as admin
+- list / purge all the stored files when logged as admin (see config.js to set your password)
 
 ## Installation
 
