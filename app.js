@@ -2,7 +2,6 @@
 
 var config = require('./config.js')
   , wbp = require('wbpjs')
-  , crypto = require('crypto')
   , fs = require('fs')
   , path = require('path');
 

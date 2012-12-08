@@ -2,10 +2,11 @@ var config = require('../../config.js')
   , fs = require('fs')
   , path = require('path')
   , wbp = require('wbpjs')
+  , async = require('async')
   , cron = require('cron')
+  , util = require(config.baseDir + '/lib/util.js')
   , Acl = require('acl')
-  , pathSep = path.sep || path.join('x', 'x')[1]
-  , downloadPath = config.publicDir + pathSep + 'download' + pathSep;
+  , downloadPath = path.join(config.publicDir, 'download');
 
 var verbose = config.options && config.options.verbose;
 
@@ -17,43 +18,6 @@ acl.allow('admin', 'files', ['list', 'delete'], function(err){
 acl.addUserRoles('admin', 'admin', function(err){
   if(err) { throw err; }
 });
-
-function endsWith(str, suffix) {
-  return str.indexOf(suffix, str.length - suffix.length) !== -1;
-}
-
-function purgeLocalFile(fileId, callback){
-  verbose && console.log('purging file id :', fileId);
-  var localFileParentPath = downloadPath + fileId
-    , purgeParents = function(){
-      fs.rmdir(localFileParentPath, function(err){
-        if(err) { if(callback) { callback(err); return; } else { throw err; } }
-        verbose && console.log('deleting dir :', localFileParentPath);
-        fs.unlink(localFileParentPath + '.json', function(err){
-          if(err) { if(callback) { callback(err); return; } else { throw err; } }
-          verbose && console.log('deleting : ', localFileParentPath + '.json');
-          if(callback) { callback(); }
-        });
-      });
-    }
-    , done = 0;
-  fs.readdir(localFileParentPath, function(err, fileNames){
-    if(fileNames.length > 0) {
-      for(var i = 0; i < fileNames.length; i++){
-        var fileName = fileNames[i];
-        fs.unlink(localFileParentPath + pathSep + fileName, function(err){
-          if(err) { if(callback) { callback(err); return; } else { throw err; } }
-          verbose && console.log('deleting :', localFileParentPath + pathSep + fileName);
-          if (++done >= fileNames.length) {
-            purgeParents();
-          }
-        });
-      }
-    } else {
-      purgeParents();
-    }
-  });
-}
 
 var controller = {
   'index':function (req, res) {
@@ -89,22 +53,34 @@ var controller = {
       };
       fs.readdir(downloadPath, function(err, fileNames){
         if(err) { next(err); return; }
-        var done = 0;
+        var infoFiles = [];
+        var readInfoFiles = function(){
+          var done = 0;
+          for(var i = 0; i < infoFiles.length; i++){
+            fs.readFile(infoFile, 'utf-8', function(err, data){
+              if(err) { next(err); return; }
+              var file = JSON.parse(data);
+              files.push(file);
+              if (++done >= infoFiles.length){
+                render();
+              }
+            });
+          }
+        }
         if(fileNames.length > 0) {
+          var done = 0;
           for(var i = 0; i < fileNames.length; i++) {
             var fileName = fileNames[i];
             if (endsWith(fileName, '.json')) {
-              var infoFile = downloadPath + pathSep + fileName;
-              fs.readFile(infoFile, 'utf-8', function(err, data){
-                if(err) { next(err); return; }
-                var file = JSON.parse(data);
-                files.push(file);
-                if (++done >= fileNames.length){
-                  render();
-                }
-              });
-            } else if (i === (fileNames.length - 1) && done === 0){
-              render();
+              var infoFile = path.join(downloadPath, fileName);
+              infoFiles.push(infoFile);
+            }
+            if (++done >= fileNames.length){
+              if(infoFiles.length > 0) {
+                readInfoFiles();
+              } else {
+                render();
+              }
             }
           }
         } else {
@@ -211,43 +187,7 @@ var controller = {
         });
         return;
       }
-      fs.readdir(downloadPath, function(err, fileIds){
-        if(err) { next(err); return; }
-        for(var i = 0; i < fileIds.length; i++){
-          var fileId = fileIds[i];
-          var localFileParentPath = downloadPath + fileId;
-          var removeDir = function(){
-            fs.rmdir(localFileParentPath, function(err){
-              if(err) { next(err); return; }
-            });
-          };
-          fs.stat(localFileParentPath, function(err, stats){
-            if (stats.isDirectory()) {
-              fs.readdir(localFileParentPath, function(err, fileNames){
-                if(err) { next(err); return; }
-                var done = 0;
-                if(fileNames.length > 0) {
-                  for(var i = 0; i < fileNames.length; i++){
-                    var fileName = fileNames[i];
-                    var localFilePath = localFileParentPath + pathSep + fileName;
-                    fs.unlink(localFilePath, function(err){
-                      if(err) { next(err); return; }
-                      if(++done >= fileNames.length){
-                        removeDir();
-                      }
-                    });
-                  }
-                } else {
-                  removeDir();
-                }
-              });
-            } else {
-              fs.unlink(localFileParentPath, function(err){
-                if(err) { next(err); return; }
-              });
-            }
-          });
-        }
+      var render = function(){
         wbp.render(res, function (type) {
           if (type === 'html') {
             res.message('All uploaded files have been removed!');
@@ -257,6 +197,42 @@ var controller = {
             res.send();
           }
         });
+      };
+      var fileIds = [];
+      fs.readdir(downloadPath, function(err, fileNames){
+        if(err) { next(err); return; }
+        if(fileNames.length > 0){
+          var done = 0;
+          async.forEach(fileNames, function(fileName){
+            verbose && console.log('done :', done);
+            if (!endsWith(fileName, '.json')) {
+              verbose && console.log('adding file id :', fileName);
+              fileIds.push(fileName);
+            }
+            if(++done >= fileNames.length){
+              verbose && console.log('done :', done);
+              if(fileIds.length > 0) {
+                var done = 0;
+                async.forEach(fileIds, function(fileId){
+                  purgeLocalFile(fileId, function(err){
+                    if(err) { next(err); return; }
+                    if(++done >= fileIds.length){
+                      render();
+                    }
+                  });
+                }, function(err){
+                  if(err) { next(err); return; }
+                });
+              } else {
+                render();
+              }
+            }
+          }, function(err){
+            if(err) { next(err); return; }
+          });
+        } else {
+          render();
+        }
       });
     });
   }
