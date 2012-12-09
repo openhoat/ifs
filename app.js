@@ -11,7 +11,7 @@ var verbose = config.options && config.options.verbose;
 i18n.configure({
   locales:['en', 'fr'],
   register:global,
-  updateFiles:true
+  updateFiles:false
 });
 
 wbp.configure(config);
