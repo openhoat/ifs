@@ -2,15 +2,15 @@
 <form action="/login" method="post">
   <fieldset>
     <p>
-      <label for="login">Login :</label>
+      <label for="login"><%= __('Login') %> :</label>
       <input type="text" id="login" name="login">
     </p>
     <p>
-      <label for="pwd">Password :</label>
+      <label for="pwd"><%= __('Password') %> :</label>
       <input type="text" id="pwd" name="pwd">
     </p>
   </fieldset>
   <div class="clear"></div>
-  <input type="submit">
+  <input type="submit" value="<%= __('Validate') %>">
 </form>
 <% include ../include/footer.html %>

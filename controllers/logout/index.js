@@ -4,7 +4,7 @@ var config = require('../../config.js')
 var controller = {
   'get':function (req, res) {
     req.session.userId = null;
-    res.message('You are now logged out');
+    res.message(__('You are now logged out'));
     res.redirect('/');
   }
 };

@@ -1,5 +1,5 @@
 <% include ../include/header.html %>
-<h2>Stored files</h2>
+<h2><%= __('Stored files') %></h2>
 <% if (files.length) { %>
 <ul>
   <% files.forEach(function(file){ %>
@@ -7,6 +7,6 @@
   <% }) %>
 </ul>
 <% } else { %>
-No file
+<%= __('No file') %>
 <% } %>
 <% include ../include/footer.html %>

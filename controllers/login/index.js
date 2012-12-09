@@ -14,10 +14,10 @@ var controller = {
       , pwd = req.body['pwd'];
     if(login === 'admin' && crypto.hash(pwd) === config.adminPasswordHash){
       req.session.userId = 'admin';
-      res.message('Welcome ' + req.session.userId + '!');
+      res.message(__('Welcome %s!', req.session.userId));
       res.redirect('/');
     } else {
-      res.message('Bad login/pwd');
+      res.message(__('Bad login/pwd'));
       res.redirect('back');
     }
   }

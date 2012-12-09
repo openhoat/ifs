@@ -4,12 +4,12 @@
     <input type="file" id="file" name="file">
   </p>
   <p>
-    <input type="reset" value="Reset" id="fileUploadCancelButton">
-    <input type="submit" id="fileUploadButton">
+    <input type="reset" value="<%= __('Reset') %>" id="fileUploadCancelButton">
+    <input type="submit" id="fileUploadButton" value="<%= __('Upload') %>">
   </p>
 </form>
 <div id="drop-area">
-  <p class="drop-instructions">or drag and drop a file here</p>
+  <p class="drop-instructions"><%= __('or drag and drop a file here') %></p>
 </div>
 <script>
   window.onload = function(){

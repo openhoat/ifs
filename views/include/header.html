@@ -14,15 +14,15 @@
 </head>
 <body>
 	<header>
-    <h2>Instant File Sharing</h2>
+    <h2><%= __('Instant File Sharing') %></h2>
     <ul id="menu">
-      <li><a id="uploadLink" href="/">Upload</a></li>
+      <li><a id="uploadLink" href="/"><%= __('Upload') %></a></li>
       <% if (isLogged) { %>
-        <li><a id="listLink" href="/files">List</a></li>
-        <li><a id="purgeAllLink" href="#" onclick="document.purgeAllForm.submit()">Purge</a></li>
-        <li><a id="logoutLink" href="/logout">Logout</a></li>
+        <li><a id="listLink" href="/files"><%= __('List') %></a></li>
+        <li><a id="purgeAllLink" href="#" onclick="document.purgeAllForm.submit()"><%= __('Purge') %></a></li>
+        <li><a id="logoutLink" href="/logout"><%= __('Logout') %></a></li>
       <% } else { %>
-        <li><a id="loginLink" href="/login">Login</a></li>
+        <li><a id="loginLink" href="/login"><%= __('Log in') %></a></li>
       <% } %>
     </ul>
     <form id="purgeAllForm" name="purgeAllForm" action="/files" method="post" enctype="multipart/form-data">

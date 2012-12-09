@@ -6,6 +6,7 @@ var config = require('../../config.js')
   , cron = require('cron')
   , util = require(config.baseDir + '/lib/util.js')
   , Acl = require('acl')
+  , dateFormat = require('dateformat')
   , downloadPath = path.join(config.publicDir, 'download');
 
 var verbose = config.options && config.options.verbose;
@@ -31,14 +32,14 @@ var controller = {
   'list':function (req, res, next) {
     acl.isAllowed(req.session.userId || 'guest', 'files', 'list', function (err, allowed) {
       if (err) {
-        next(new Error('Error checking permissions to access resource'));
+        next(new Error(__('Error checking permissions to access resource')));
       }
       if (!allowed) {
         wbp.render(res, function (type) {
           res.status(403);
           if (type === 'html') {
             res.render('403.' + type, {
-              title:'Error', url:req.originalUrl
+              title:__('Error'), url:req.originalUrl
             });
           } else {
             res.send();
@@ -131,17 +132,22 @@ var controller = {
   'post':function (req, res, next) {
     var reqFile = req.files.file
       , file = {
-        id:path.basename(reqFile.path), name:reqFile.name, type:reqFile.type, size:reqFile.size, lastModifiedDate:reqFile.lastModifiedDate
+          id:path.basename(reqFile.path)
+        , name:reqFile.name
+        , type:reqFile.type
+        , size:reqFile.size
+        , lastModifiedDate:reqFile.lastModifiedDate
       }
       , localFileParentPath = path.join(downloadPath, file.id)
       , localFilePath = path.join(localFileParentPath, file.name)
       , localFileInfoPath = localFileParentPath + '.json';
+    file.niceDate = dateFormat(new Date(file.lastModifiedDate), __('dateFormat'));
     if (file.size < 1) {
       wbp.render(res, function (type) {
         res.status(400);
         if (type === 'html') {
           res.render('400.' + type, {
-            title:'Error', url:req.originalUrl
+            title:__('Error'), url:req.originalUrl
           });
         } else {
           res.send();
@@ -188,7 +194,7 @@ var controller = {
               next(err);
               return;
             }
-            res.message('Your file will be stored until ' + purgeDate + ', to download it later, copy the link to your clipboard');
+            res.message(__('Your file will be stored until %s, to download it later, copy the link to your clipboard', dateFormat(purgeDate, __('dateFormat'))));
             res.redirect('/file/' + file.id);
           });
         });
@@ -209,7 +215,7 @@ var controller = {
         }
         wbp.render(res, function (type) {
           if (type === 'html') {
-            res.message('File ' + fileId + ' has been successfully removed!');
+            res.message(__('File %s has been successfully removed!', fileId));
             res.redirect('/');
           } else {
             res.status(204);
@@ -229,7 +235,7 @@ var controller = {
           res.status(403);
           if (type === 'html') {
             res.render('403.' + type, {
-              title:'Error', url:req.originalUrl
+              title:__('Error'), url:req.originalUrl
             });
           } else {
             res.send();
@@ -244,7 +250,7 @@ var controller = {
         }
         wbp.render(res, function (type) {
           if (type === 'html') {
-            res.message('All uploaded files have been removed!');
+            res.message(__('All stored files have been removed!'));
             res.redirect('/');
           } else {
             res.status(204);
