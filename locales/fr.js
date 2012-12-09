@@ -7,7 +7,7 @@
 	"File info": "Info fichier",
 	"File %s has been successfully removed!": "Le fichier %s a été supprimé avec succès !",
 	"Id": "Clé",
-	"Instant File Sharing": "Partage de fichier instantanné",
+	"Instant File Sharing": "Partage de fichier instantané",
   "Lang": "Lang",
   "List": "Lister",
 	"Login": "Identifiant",
