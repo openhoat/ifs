@@ -8,6 +8,8 @@ A simple web app for instant file sharing.
 - download a file
 - remove a file
 - list / purge all the stored files when logged as admin (see config.js to set your password)
+- basic authentication
+- i18n support (french / english)
 
 ## Installation
 
