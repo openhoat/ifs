@@ -12,7 +12,6 @@ wbp.create();
 
 wbp.init(function (req, res, next) {
   res.locals.isLogged = req.session && req.session.userId;
-  req.session.userId = 'admin';
   next();
 });
 

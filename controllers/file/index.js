@@ -151,7 +151,6 @@ var controller = {
     }
     var purgeDate = new Date(file.lastModifiedDate);
     purgeDate.setHours(purgeDate.getHours() + config.localFileAge);
-//    purgeDate.setSeconds(purgeDate.getSeconds() + 10);
     var cronJob = new cron.CronJob(purgeDate, function () {
       verbose && console.log('purging file :', file.id);
       util.deleteFile(path.join(downloadPath, file.id + '.json'), false, function (err) {
