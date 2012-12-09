@@ -14,6 +14,17 @@
 </head>
 <body>
 	<header>
+    <div id="langSwitcherContainer">
+      <form id="langSwitcherForm" name="langSwitcherForm" action="<%= currentUri %>" method="get">
+        <label for="lang"><%= __('Lang') %> :</label>
+        <select id="lang" name="lang" onchange="langSwitcherForm.submit()">
+          <option value="default"><%= __('default') %></option>
+          <% availableLangs.forEach(function(lang){ %>
+          <option value="<%= lang %>"<%= preferredLang === lang ? ' selected=selected' : '' %>><%= lang %></option>
+          <% }) %>
+        </select>
+      </form>
+    </div>
     <h2><%= __('Instant File Sharing') %></h2>
     <ul id="menu">
       <li><a id="uploadLink" href="/"><%= __('Upload') %></a></li>

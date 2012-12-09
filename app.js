@@ -9,7 +9,7 @@ var config = require('./config.js')
 var verbose = config.options && config.options.verbose;
 
 i18n.configure({
-  locales:['en', 'fr'],
+  locales:config.locales,
   register:global,
   updateFiles:false
 });
@@ -22,12 +22,30 @@ wbp.app.locals({
   __n:i18n.__n
 });
 
+function localeMiddleware(req, res, next) {
+  res.locals.currentUri = req._parsedUrl.pathname;
+  res.locals.defaultLang = i18n.getLocale();
+  res.locals.availableLangs = config.locales;
+  var preferredLang = req.query['lang'];
+  if(preferredLang !== undefined){
+    req.session.preferredLang = preferredLang === 'default' && null || preferredLang;
+  }
+  if(req.session && req.session.preferredLang){
+    i18n.setLocale(req.session.preferredLang);
+  }
+  res.locals.preferredLang = i18n.getLocale();
+  next();
+}
+
+function loginMiddleware(req, res, next) {
+  res.locals.isLogged = req.session && req.session.userId;
+  next();
+}
+
 wbp.init([
   i18n.init,
-  function (req, res, next) {
-    res.locals.isLogged = req.session && req.session.userId;
-    next();
-  }
+  localeMiddleware,
+  loginMiddleware
 ]);
 
 wbp.start();

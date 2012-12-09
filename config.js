@@ -16,9 +16,10 @@ var config = {
     verbose:false
   },
   localFileAge: 48, // local files will be stored for 48 hours, after they will be purged
-  adminPasswordHash: 'HaVO1xr1nSa2dXcnuQ+QQ0XHpB0='
+  adminPasswordHash: 'HaVO1xr1nSa2dXcnuQ+QQ0XHpB0=',
   // Feel free to change to your password hash
   // To get your hash use : require(config.baseDir + '/lib/crypto.js').hash('mypassword')
+  locales: ['en', 'fr']
 };
 
 module.exports = config;
