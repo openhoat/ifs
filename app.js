@@ -38,8 +38,20 @@ function localeMiddleware(req, res, next) {
 }
 
 function loginMiddleware(req, res, next) {
+  var login = req.signedCookies.login;
+  var pwdHash = req.signedCookies.password;
   res.locals.isLogged = req.session && req.session.userId;
-  next();
+  if(login !== undefined && pwdHash !== undefined && res.locals.isLogged === undefined) {
+    if(require('./controllers/login').login(req, res, login, pwdHash)){
+      res.redirect('/');
+    } else {
+      res.clearCookie('login');
+      res.clearCookie('password');
+      next();
+    }
+  } else {
+    next();
+  }
 }
 
 wbp.init([

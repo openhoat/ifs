@@ -9,12 +9,23 @@ var controller = {
       res.render(view);
     });
   },
+  'login': function(req, res, login, pwdHash){
+    for(var i = 0; i < config.users.length; i++) {
+      var user = config.users[i];
+      if(login === user.login && pwdHash === user.pwdHash){
+        req.session.userId = login;
+        res.cookie('login', login, { signed: true });
+        res.cookie('password', pwdHash, { signed: true });
+        res.message(__('Welcome %s!', req.session.userId));
+        return true;
+      }
+    }
+    return false;
+  },
   'post':function (req, res) {
     var login = req.body['login']
-      , pwd = req.body['pwd'];
-    if(login === 'admin' && crypto.hash(pwd) === config.adminPasswordHash){
-      req.session.userId = 'admin';
-      res.message(__('Welcome %s!', req.session.userId));
+      , pwdHash = crypto.hash(req.body['pwd']);
+    if(controller.login(req, res, login, pwdHash)){
       res.redirect('/');
     } else {
       res.message(__('Bad login/pwd'));

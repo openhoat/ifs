@@ -1,6 +1,6 @@
 {
   "name":"ifs",
-  "version":"0.0.7",
+  "version":"0.0.8",
   "description":"Instant File Sharing",
   "main":"app.js",
   "author":{

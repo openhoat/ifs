@@ -1,4 +1,5 @@
 var path = require('path')
+  , Acl = require('acl')
   , baseDir = __dirname;
 
 // Feel free to match your settings
@@ -15,11 +16,23 @@ var config = {
   options        :{
     verbose:false
   },
-  localFileAge: 48, // local files will be stored for 48 hours, after they will be purged
-  adminPasswordHash: 'HaVO1xr1nSa2dXcnuQ+QQ0XHpB0=',
-  // Feel free to change to your password hash
+  locales: ['en', 'fr'],
+  storedFilesAge: 24 * 7, // stored files will be stored for a week, after they will be purged
+  users: [ {login: 'admin', pwdHash: '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' } ],
+  // Feel free to change to your password hash, here it matches 'admin'
   // To get your hash use : require(config.baseDir + '/lib/crypto.js').hash('mypassword')
-  locales: ['en', 'fr']
+  acl: new Acl(new Acl.memoryBackend())
 };
+
+config.acl.allow('admin', 'files', ['list', 'delete'], function (err) {
+  if (err) {
+    throw err;
+  }
+});
+config.acl.addUserRoles('admin', 'admin', function (err) {
+  if (err) {
+    throw err;
+  }
+});
 
 module.exports = config;

@@ -5,24 +5,10 @@ var config = require('../../config.js')
   , async = require('async')
   , cron = require('cron')
   , util = require(config.baseDir + '/lib/util.js')
-  , Acl = require('acl')
   , dateFormat = require('dateformat')
   , downloadPath = path.join(config.publicDir, 'download');
 
 var verbose = config.options && config.options.verbose;
-
-var acl = new Acl(new Acl.memoryBackend());
-
-acl.allow('admin', 'files', ['list', 'delete'], function (err) {
-  if (err) {
-    throw err;
-  }
-});
-acl.addUserRoles('admin', 'admin', function (err) {
-  if (err) {
-    throw err;
-  }
-});
 
 var controller = {
   'index':function (req, res) {
@@ -30,7 +16,7 @@ var controller = {
     res.render(view);
   },
   'list':function (req, res, next) {
-    acl.isAllowed(req.session.userId || 'guest', 'files', 'list', function (err, allowed) {
+    config.acl.isAllowed(req.session.userId || 'guest', 'files', 'list', function (err, allowed) {
       if (err) {
         next(new Error(__('Error checking permissions to access resource')));
       }
@@ -156,7 +142,7 @@ var controller = {
       return;
     }
     var purgeDate = new Date(file.lastModifiedDate);
-    purgeDate.setHours(purgeDate.getHours() + config.localFileAge);
+    purgeDate.setHours(purgeDate.getHours() + config.storedFilesAge);
     var cronJob = new cron.CronJob(purgeDate, function () {
       verbose && console.log('purging file :', file.id);
       util.deleteFile(path.join(downloadPath, file.id + '.json'), false, function (err) {
@@ -226,7 +212,7 @@ var controller = {
     });
   },
   'clear':function (req, res, next) {
-    acl.isAllowed(req.session.userId || 'guest', 'files', 'delete', function (err, allowed) {
+    config.acl.isAllowed(req.session.userId || 'guest', 'files', 'delete', function (err, allowed) {
       if (err) {
         next(new Error('Error checking permissions to access resource'));
       }

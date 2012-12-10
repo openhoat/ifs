@@ -1,6 +1,7 @@
 {
 	"All stored files have been removed!": "All stored files have been removed!",
-	"Date": "Date",
+  "Bad login/pwd": "Bad login/pwd",
+  "Date": "Date",
 	"Download": "Download",
 	"Download link": "Download link",
 	"Error": "Error",
