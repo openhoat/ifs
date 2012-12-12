@@ -11,10 +11,9 @@ function convertToAbsolutePaths(paths) {
 var dir = {
     reports    :'reports',
     controllers:'controllers',
-    models     :'models',
     spec       :'spec'
   }
-  , jsLintFiles = ['app.js', 'config.js', 'lib/**/*.js', dir.controllers + '/**/*.js', dir.models + '/**/*.js'];
+  , jsLintFiles = ['app.js', 'config.js', 'lib/**/*.js', dir.controllers + '/**/*.js'];
 
 module.exports = function (grunt) {
   convertToAbsolutePaths(jsLintFiles);
