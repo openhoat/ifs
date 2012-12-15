@@ -26,7 +26,7 @@ function localeMiddleware(req, res, next) {
   res.locals.currentUri = req._parsedUrl.pathname;
   res.locals.defaultLang = i18n.getLocale();
   res.locals.availableLangs = config.locales;
-  var preferredLang = req.query['lang'];
+  var preferredLang = req.query.lang;
   if(preferredLang !== undefined){
     req.session.preferredLang = preferredLang === 'default' && null || preferredLang;
   }
@@ -38,8 +38,8 @@ function localeMiddleware(req, res, next) {
 }
 
 function loginMiddleware(req, res, next) {
-  var login = req.signedCookies.login;
-  var pwdHash = req.signedCookies.password;
+  var login = req.signedCookies.login
+    , pwdHash = req.signedCookies.password;
   res.locals.isLogged = req.session && req.session.userId;
   if(login !== undefined && pwdHash !== undefined && res.locals.isLogged === undefined) {
     if(require('./controllers/login').login(req, res, login, pwdHash)){

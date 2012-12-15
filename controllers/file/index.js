@@ -33,8 +33,8 @@ var controller = {
         });
         return;
       }
-      var files = [];
-      var render = function () {
+      var files = []
+        , render = function () {
         wbp.render(res, function (type) {
           var view = wbp.getWebView(req, 'file/list', type);
           res.render(view, {
@@ -47,8 +47,8 @@ var controller = {
           next(err);
           return;
         }
-        var infoFiles = [];
-        var readInfoFiles = function () {
+        var infoFiles = []
+          , readInfoFiles = function () {
           var done = 0;
           async.forEach(infoFiles, function(infoFile){
             fs.readFile(infoFile, 'utf-8', function (err, data) {
@@ -65,7 +65,6 @@ var controller = {
           }, function(err){
             if (err) {
               next(err);
-              return;
             }
           });
         };
@@ -153,7 +152,6 @@ var controller = {
         util.deleteFile(path.join(downloadPath, file.id), true, function (err) {
           if (err) {
             throw err;
-            return;
           }
         });
       });
