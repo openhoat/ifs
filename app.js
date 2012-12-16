@@ -3,8 +3,7 @@
 var config = require('./config.js')
   , wbp = require('wbpjs')
   , fs = require('fs')
-  , path = require('path')
-  , i18n = require('i18n');
+  , path = require('path');
 
 var verbose = config.options && config.options.verbose;
 
@@ -12,16 +11,16 @@ wbp.configure(config);
 
 function localeMiddleware(req, res, next) {
   res.locals.currentUri = req._parsedUrl.pathname;
-  res.locals.defaultLang = i18n.getLocale();
+  res.locals.defaultLang = wbp.i18n.getLocale(req);
   res.locals.availableLangs = config.locales;
   var preferredLang = req.query.lang;
   if(preferredLang !== undefined){
     req.session.preferredLang = preferredLang === 'default' && null || preferredLang;
   }
   if(req.session && req.session.preferredLang){
-    i18n.setLocale(req.session.preferredLang);
+    wbp.i18n.setLocale(req, req.session.preferredLang);
   }
-  res.locals.preferredLang = i18n.getLocale();
+  res.locals.preferredLang = wbp.i18n.getLocale(req);
   next();
 }
 
