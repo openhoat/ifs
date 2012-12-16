@@ -8,19 +8,7 @@ var config = require('./config.js')
 
 var verbose = config.options && config.options.verbose;
 
-i18n.configure({
-  locales:config.locales,
-  register:global,
-  updateFiles:false
-});
-
 wbp.configure(config);
-wbp.create();
-
-wbp.app.locals({
-  __i:i18n.__,
-  __n:i18n.__n
-});
 
 function localeMiddleware(req, res, next) {
   res.locals.currentUri = req._parsedUrl.pathname;
@@ -55,7 +43,6 @@ function loginMiddleware(req, res, next) {
 }
 
 wbp.init([
-  i18n.init,
   localeMiddleware,
   loginMiddleware
 ]);
