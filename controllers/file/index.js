@@ -1,11 +1,12 @@
-var config = require('../../config.js')
-  , fs = require('fs')
+var
+  fs = require('fs')
   , path = require('path')
   , wbp = require('wbpjs')
   , async = require('async')
   , cron = require('cron')
-  , util = require(config.baseDir + '/lib/util.js')
   , dateFormat = require('dateformat')
+  , config = wbp.config
+  , util = wbp.util
   , downloadPath = path.join(config.publicDir, 'download');
 
 var verbose = config.options && config.options.verbose;
@@ -35,13 +36,13 @@ var controller = {
       }
       var files = []
         , render = function () {
-        wbp.render(res, function (type) {
-          var view = wbp.getWebView(req, 'file/list', type);
-          res.render(view, {
-            files:files
+          wbp.render(res, function (type) {
+            var view = wbp.getWebView(req, 'file/list', type);
+            res.render(view, {
+              files:files
+            });
           });
-        });
-      };
+        };
       fs.readdir(downloadPath, function (err, fileNames) {
         if (err) {
           next(err);
@@ -49,25 +50,25 @@ var controller = {
         }
         var infoFiles = []
           , readInfoFiles = function () {
-          var done = 0;
-          async.forEach(infoFiles, function(infoFile){
-            fs.readFile(infoFile, 'utf-8', function (err, data) {
+            var done = 0;
+            async.forEach(infoFiles, function (infoFile) {
+              fs.readFile(infoFile, 'utf-8', function (err, data) {
+                if (err) {
+                  next(err);
+                  return;
+                }
+                var file = JSON.parse(data);
+                files.push(file);
+                if (++done >= infoFiles.length) {
+                  render();
+                }
+              });
+            }, function (err) {
               if (err) {
                 next(err);
-                return;
-              }
-              var file = JSON.parse(data);
-              files.push(file);
-              if (++done >= infoFiles.length) {
-                render();
               }
             });
-          }, function(err){
-            if (err) {
-              next(err);
-            }
-          });
-        };
+          };
         if (fileNames.length > 0) {
           var done = 0;
           for (var i = 0; i < fileNames.length; i++) {
@@ -117,11 +118,7 @@ var controller = {
   'post':function (req, res, next) {
     var reqFile = req.files.file
       , file = {
-          id:path.basename(reqFile.path)
-        , name:reqFile.name
-        , type:reqFile.type
-        , size:reqFile.size
-        , lastModifiedDate:reqFile.lastModifiedDate
+        id:path.basename(reqFile.path), name:reqFile.name, type:reqFile.type, size:reqFile.size, lastModifiedDate:reqFile.lastModifiedDate
       }
       , localFileParentPath = path.join(downloadPath, file.id)
       , localFilePath = path.join(localFileParentPath, file.name)
