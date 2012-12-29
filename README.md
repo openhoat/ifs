@@ -22,10 +22,8 @@ The recommended way is through the excellent [NPM](http://www.npmjs.org/):
 
     nodejs app
 
-## [See it in action](http://ifs.eu01.aws.af.cm/)
+## [See it in action](http://ifs.valtech-training.fr:3000/)
 
   Use admin/admin for demo purpose
-
-- powered by [AppFog](http://www.appfog.com/) cloud
 
 Enjoy !
