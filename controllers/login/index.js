@@ -1,11 +1,14 @@
-var wbp = require('wbpjs')
-  , config = wbp.config
-  , util = wbp.util;
+var path = require('path')
+  , wbp = require('wbpjs')
+  , config = require(wbp.findAppFile('config.js'))
+  , util = wbp.util
+  , mvcPlugin = wbp.findPlugin('wbpjs-mvc')
+  , viewsPlugin = mvcPlugin.viewsPlugin;
 
 var controller = {
   'get':function (req, res) {
-    wbp.render(res, function (type) {
-      var view = wbp.getWebView(req, 'login/index', type);
+    viewsPlugin.render(res, function (type) {
+      var view = viewsPlugin.getWebView(req, 'login/index', type);
       res.render(view);
     });
   },

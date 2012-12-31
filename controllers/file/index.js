@@ -1,19 +1,18 @@
-var
-  fs = require('fs')
-  , path = require('path')
+var path = require('path')
+  , fs = require('fs')
   , wbp = require('wbpjs')
   , async = require('async')
   , cron = require('cron')
   , dateFormat = require('dateformat')
-  , config = wbp.config
+  , config = require(wbp.findAppFile('config.js'))
   , util = wbp.util
-  , downloadPath = path.join(config.publicDir, 'download');
-
-var verbose = config.options && config.options.verbose;
+  , mvcPlugin = wbp.findPlugin('wbpjs-mvc')
+  , viewsPlugin = mvcPlugin.viewsPlugin
+  , downloadPath = path.join(mvcPlugin.config.publicDir, 'download');
 
 var controller = {
   'index':function (req, res) {
-    var view = wbp.getWebView(req, 'file/new');
+    var view = viewsPlugin.getWebView(req, 'file/new');
     res.render(view);
   },
   'list':function (req, res, next) {
@@ -22,7 +21,7 @@ var controller = {
         next(new Error(__('Error checking permissions to access resource')));
       }
       if (!allowed) {
-        wbp.render(res, function (type) {
+        viewsPlugin.render(res, function (type) {
           res.status(403);
           if (type === 'html') {
             res.render('403.' + type, {
@@ -36,8 +35,8 @@ var controller = {
       }
       var files = []
         , render = function () {
-          wbp.render(res, function (type) {
-            var view = wbp.getWebView(req, 'file/list', type);
+          viewsPlugin.render(res, function (type) {
+            var view = viewsPlugin.getWebView(req, 'file/list', type);
             res.render(view, {
               files:files
             });
@@ -106,8 +105,8 @@ var controller = {
           return;
         }
         var file = JSON.parse(data);
-        wbp.render(res, function (type) {
-          var view = wbp.getWebView(req, 'file/show', type);
+        viewsPlugin.render(res, function (type) {
+          var view = viewsPlugin.getWebView(req, 'file/show', type);
           res.render(view, {
             file:file
           });
@@ -125,7 +124,7 @@ var controller = {
       , localFileInfoPath = localFileParentPath + '.json';
     file.niceDate = dateFormat(new Date(file.lastModifiedDate), __('dateFormat'));
     if (file.size < 1) {
-      wbp.render(res, function (type) {
+      viewsPlugin.render(res, function (type) {
         res.status(400);
         if (type === 'html') {
           res.render('400.' + type, {
@@ -140,7 +139,7 @@ var controller = {
     var purgeDate = new Date(file.lastModifiedDate);
     purgeDate.setHours(purgeDate.getHours() + config.storedFilesAge);
     var cronJob = new cron.CronJob(purgeDate, function () {
-      verbose && console.log('purging file :', file.id);
+      wbp.log('purging file :', file.id);
       util.deleteFile(path.join(downloadPath, file.id + '.json'), false, function (err) {
         if (err) {
           throw err;
@@ -194,7 +193,7 @@ var controller = {
           next(err);
           return;
         }
-        wbp.render(res, function (type) {
+        viewsPlugin.render(res, function (type) {
           if (type === 'html') {
             res.message(__('File %s has been successfully removed!', fileId));
             res.redirect('/');
@@ -212,7 +211,7 @@ var controller = {
         next(new Error('Error checking permissions to access resource'));
       }
       if (!allowed) {
-        wbp.render(res, function (type) {
+        viewsPlugin.render(res, function (type) {
           res.status(403);
           if (type === 'html') {
             res.render('403.' + type, {
@@ -229,7 +228,7 @@ var controller = {
           next(err);
           return;
         }
-        wbp.render(res, function (type) {
+        viewsPlugin.render(res, function (type) {
           if (type === 'html') {
             res.message(__('All stored files have been removed!'));
             res.redirect('/');
