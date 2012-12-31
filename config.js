@@ -20,11 +20,12 @@ function loginMiddleware(req, res, next) {
 }
 
 var config = {
-  verbose: false,
+  verbose:false,
   plugins:{
     'wbpjs-mvc':{
       type:'wbpjs-mvc',
       config:{
+        port:3003,
         renderFormats:['html', 'json'],
         locales:['en', 'fr'],
         useLocalMiddleWare:true,
