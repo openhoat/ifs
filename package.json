@@ -1,6 +1,6 @@
 {
   "name":"ifs",
-  "version":"0.1.7",
+  "version":"0.1.8",
   "description":"Instant File Sharing",
   "homepage": "https://github.com/openhoat/ifs",
   "main":"app.js",
