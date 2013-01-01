@@ -29,7 +29,7 @@ var config = {
         renderFormats:['html', 'json'],
         locales:['en', 'fr'],
         useLocalMiddleWare:true,
-        initMiddlewares:[ loginMiddleware ]
+        beforeMiddlewares:[ loginMiddleware ]
       }
     }
   },
