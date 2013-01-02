@@ -20,7 +20,6 @@ function loginMiddleware(req, res, next) {
 }
 
 var config = {
-  verbose:false,
   plugins:{
     'wbpjs-mvc':{
       type:'wbpjs-mvc',
