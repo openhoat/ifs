@@ -22,7 +22,7 @@ The recommended way is through the excellent [NPM](http://www.npmjs.org/):
 
     nodejs app
 
-## [See it in action](http://ifs.valtech-training.fr:3000/)
+## [See it in action](http://ifs.labs.valtech-training.fr/)
 
   Use admin/admin for demo purpose
 
