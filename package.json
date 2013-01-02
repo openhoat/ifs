@@ -1,6 +1,6 @@
 {
   "name":"ifs",
-  "version":"0.1.11",
+  "version":"0.1.12",
   "description":"Instant File Sharing",
   "homepage": "https://github.com/openhoat/ifs",
   "main":"app.js",
@@ -22,7 +22,7 @@
     }
   ],
   "dependencies":{
-    "wbpjs":"~2.0.4",
+    "wbpjs":"~2.0.5",
     "async":"0.1.22",
     "acl":"0.2.2",
     "cron":"1.0.1",
