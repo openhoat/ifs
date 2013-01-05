@@ -27,7 +27,7 @@ var config = {
         port:3003,
         renderFormats:['html', 'json'],
         locales:['en', 'fr'],
-        useLocalMiddleWare:true,
+        useLocalMiddleware:true,
         beforeMiddlewares:[ loginMiddleware ]
       }
     }

@@ -1,6 +1,6 @@
 var path = require('path')
   , wbp = require('wbpjs')
-  , config = require(wbp.findAppFile('config.js'));
+  , config = wbp.requireAppFile('config');
 
 var controller = {
   'get':function (req, res) {

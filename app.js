@@ -1,12 +1,11 @@
 var path = require('path')
   , fs = require('fs')
-  , config = require(path.join(__dirname, 'config.js'))
-  , wbp = require('wbpjs');
+  , wbp = require('wbpjs')
+  , config = wbp.requireAppFile('config');
 
 wbp.configure(config);
 
-var mvcPlugin = wbp.findPlugin('wbpjs-mvc');
-var downloadPath = path.join(mvcPlugin.config.publicDir, 'download')
+var downloadPath = path.join(wbp.findPlugin('wbpjs-mvc').config.publicDir, 'download')
 if (!fs.existsSync(downloadPath)) {
   wbp.util.mkdirp(downloadPath);
 }
