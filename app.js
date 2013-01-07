@@ -5,7 +5,7 @@ var path = require('path')
 
 wbp.configure(config);
 
-var downloadPath = path.join(wbp.findPlugin('wbpjs-mvc').config.publicDir, 'download')
+var downloadPath = path.join(wbp.findPlugin('mvc').config.publicDir, 'download')
 if (!fs.existsSync(downloadPath)) {
   wbp.util.mkdirp(downloadPath);
 }

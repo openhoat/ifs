@@ -6,7 +6,7 @@ var path = require('path')
   , dateFormat = require('dateformat')
   , config = wbp.requireAppFile('config')
   , util = wbp.util
-  , downloadPath = path.join(wbp.findPlugin('wbpjs-mvc').config.publicDir, 'download');
+  , downloadPath = path.join(wbp.findPlugin('mvc').config.publicDir, 'download');
 
 var controller = {
   'index':function (req, res) {

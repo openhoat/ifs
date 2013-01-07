@@ -21,8 +21,8 @@ function loginMiddleware(req, res, next) {
 
 var config = {
   plugins:{
-    'wbpjs-mvc':{
-      type:'wbpjs-mvc',
+    'mvc':{
+      type:'mvc',
       config:{
         port:3003,
         renderFormats:['html', 'json'],
