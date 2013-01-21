@@ -3,6 +3,7 @@
   <p>
     <input type="file" id="file" name="file">
   </p>
+
   <p>
     <input type="reset" value="<%= __('Reset') %>" id="fileUploadCancelButton">
     <input type="submit" id="fileUploadButton" value="<%= __('Upload') %>">
@@ -12,37 +13,45 @@
   <p class="drop-instructions"><%= __('or drag and drop a file here') %></p>
 </div>
 <script>
-  window.onload = function(){
-    var fileUploadButton = document.getElementById('fileUploadButton');
+  window.onload = function () {
+    var file = document.getElementById('file')
+      , fileUploadButton = document.getElementById('fileUploadButton')
+      , fileUploadCancelButton = document.getElementById('fileUploadCancelButton')
+      , dropArea = document.getElementById('drop-area');
     fileUploadButton.setAttribute('disabled', 'disabled');
-    var file = document.getElementById('file');
-    var fileUploadCancelButton = document.getElementById('fileUploadCancelButton');
-    fileUploadCancelButton.onclick = function(){
+    fileUploadCancelButton.onclick = function () {
       file['files'] = [];
       return true;
-    }
-    file.onchange = function(){
-      if(file['files']) {
+    };
+    file.onchange = function () {
+      if (file['files']) {
         fileUploadButton.removeAttribute('disabled');
       } else {
         fileUploadButton.setAttribute('disabled', 'disabled');
       }
       return true;
-    }
-    if(dragAndDropSupported()){
-      var dropArea = document.getElementById('drop-area');
+    };
+    if (dragAndDropSupported()) {
       addCssClass(dropArea, 'enabled');
       dropArea.ondrop = function (event) {
+        var files;
         event.preventDefault && event.preventDefault();
-        var files = event.dataTransfer.files;
+        files = event.dataTransfer.files;
         file['files'] = files;
         return true;
       };
-      dropArea.ondragover = function(event) {
+      dropArea.ondragenter = function (event) {
+        event.preventDefault && event.preventDefault();
+        return false;
+      };
+      dropArea.ondragover = function (event) {
         addCssClass(dropArea, 'over');
+        event.preventDefault && event.preventDefault();
+        return false;
       };
       dropArea.ondragleave = function (event) {
         removeCssClass(dropArea, 'over');
+        return false;
       };
     }
   }
