@@ -1,3 +1,5 @@
+/*global __: true */
+
 var wbp = require('wbpjs')
   , config = wbp.requireAppFile('config')
   , util = wbp.util;
@@ -10,8 +12,9 @@ var controller = {
     });
   },
   'login':function (req, res, login, pwdHash) {
-    for (var i = 0; i < config.users.length; i++) {
-      var user = config.users[i];
+    var i, user;
+    for (i = 0; i < config.users.length; i++) {
+      user = config.users[i];
       if (login === user.login && pwdHash === user.pwdHash) {
         req.session.userId = login;
         res.cookie('login', login, { signed:true });

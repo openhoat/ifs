@@ -1,3 +1,5 @@
+/*global __: true */
+
 var path = require('path')
   , wbp = require('wbpjs')
   , config = wbp.requireAppFile('config');

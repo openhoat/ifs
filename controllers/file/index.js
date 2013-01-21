@@ -1,3 +1,5 @@
+/*global __: true */
+
 var path = require('path')
   , fs = require('fs')
   , wbp = require('wbpjs')
@@ -41,37 +43,38 @@ var controller = {
           });
         };
       fs.readdir(downloadPath, function (err, fileNames) {
+        var infoFiles = []
+          , readInfoFiles, done, i, fileName, infoFile;
         if (err) {
           next(err);
           return;
         }
-        var infoFiles = []
-          , readInfoFiles = function () {
-            var done = 0;
-            async.forEach(infoFiles, function (infoFile) {
-              fs.readFile(infoFile, 'utf-8', function (err, data) {
-                if (err) {
-                  next(err);
-                  return;
-                }
-                var file = JSON.parse(data);
-                files.push(file);
-                if (++done >= infoFiles.length) {
-                  render();
-                }
-              });
-            }, function (err) {
+        readInfoFiles = function () {
+          var done = 0;
+          async.forEach(infoFiles, function (infoFile) {
+            fs.readFile(infoFile, 'utf-8', function (err, data) {
               if (err) {
                 next(err);
+                return;
+              }
+              var file = JSON.parse(data);
+              files.push(file);
+              if (++done >= infoFiles.length) {
+                render();
               }
             });
-          };
+          }, function (err) {
+            if (err) {
+              next(err);
+            }
+          });
+        };
         if (fileNames.length > 0) {
-          var done = 0;
-          for (var i = 0; i < fileNames.length; i++) {
-            var fileName = fileNames[i];
+          done = 0;
+          for (i = 0; i < fileNames.length; i++) {
+            fileName = fileNames[i];
             if (util.endsWith(fileName, '.json')) {
-              var infoFile = path.join(downloadPath, fileName);
+              infoFile = path.join(downloadPath, fileName);
               infoFiles.push(infoFile);
             }
             if (++done >= fileNames.length) {
@@ -96,7 +99,6 @@ var controller = {
         next({message:'not found'});
         return;
       }
-      var fileName = fileNames[0];
       fs.readFile(localFileParentPath + '.json', function (err, data) {
         if (err) {
           next(err);
@@ -141,7 +143,6 @@ var controller = {
       util.deleteFile(path.join(downloadPath, file.id + '.json'), false, function (err) {
         if (err) {
           throw err;
-          return;
         }
         util.deleteFile(path.join(downloadPath, file.id), true, function (err) {
           if (err) {
