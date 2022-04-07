@@ -23,7 +23,7 @@
   ],
   "dependencies":{
     "wbpjs":"~2.3.5",
-    "async":"0.1.22",
+    "async":"3.2.2",
     "acl":"0.2.2",
     "cron":"1.0.1",
     "dateformat":"1.0.3-1.2.3"
